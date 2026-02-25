@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intelligent Enterprise Assistant | Gov Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===== CSS VARIABLES ===== */
+:root {
+  --navy: #0a1628;
+  --navy-mid: #112240;
+  --navy-light: #1a3a6b;
+  --blue: #1e5fad;
+  --blue-accent: #2979d9;
+  --gold: #c9a227;
+  --gold-light: #e8c547;
+  --white: #ffffff;
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-500: #64748b;
+  --gray-700: #334155;
+  --green: #059669;
+  --red: #dc2626;
+  --sidebar-w: 260px;
+  --header-h: 64px;
+  --radius: 12px;
+  --shadow: 0 4px 24px rgba(10,22,40,0.10);
+  --shadow-lg: 0 8px 40px rgba(10,22,40,0.18);
+  --transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  --bg: var(--gray-50);
+  --surface: var(--white);
+  --text: var(--navy);
+  --text-muted: var(--gray-500);
+  --border: var(--gray-200);
+}
+[data-theme="dark"] {
+  --bg: #0a0f1e;
+  --surface: #111827;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border: #1e293b;
+  --gray-50: #111827;
+  --gray-100: #1e293b;
+  --gray-200: #253349;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+/* ===== RESET ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:var(--transition)}
+
+/* ===== SCREENS ===== */
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex}
+
+/* ===========================
+   AUTH SCREENS
+   =========================== */
+#screen-login, #screen-register, #screen-otp {
+  align-items:center;justify-content:center;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 60%, var(--blue) 100%);
+  position:relative;overflow:hidden;
+}
+.auth-bg-pattern {
+  position:absolute;inset:0;
+  background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 40px),
+    repeating-linear-gradient(-45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 40px);
+  pointer-events:none;
+}
+.auth-orb {
+  position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;
+}
+.orb1{width:500px;height:500px;background:rgba(41,121,217,0.25);top:-150px;right:-100px;animation:floatOrb 8s ease-in-out infinite}
+.orb2{width:350px;height:350px;background:rgba(201,162,39,0.12);bottom:-80px;left:-80px;animation:floatOrb 10s ease-in-out infinite reverse}
+@keyframes floatOrb{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-30px) scale(1.05)}}
+
+.auth-card {
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 20px;
+  padding: 44px 48px;
+  width: 460px;
+  max-width: 95vw;
+  box-shadow: var(--shadow-lg);
+  position:relative;z-index:1;
+  animation: cardIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(40px) scale(0.95)}to{opacity:1;transform:none}}
+
+.auth-logo {
+  display:flex;align-items:center;gap:12px;margin-bottom:32px;
+}
+.auth-logo-icon {
+  width:44px;height:44px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;box-shadow:0 4px 16px rgba(201,162,39,0.4);
+}
+.auth-logo-text {font-family:'Playfair Display',serif;color:white;font-size:16px;line-height:1.2}
+.auth-logo-text small{display:block;font-family:'Source Sans 3',sans-serif;font-size:11px;color:rgba(255,255,255,0.5);font-weight:400;letter-spacing:1.5px;text-transform:uppercase}
+
+.auth-title{font-family:'Playfair Display',serif;font-size:26px;color:white;margin-bottom:6px}
+.auth-subtitle{font-size:14px;color:rgba(255,255,255,0.55);margin-bottom:28px}
+
+.form-group{margin-bottom:18px}
+.form-label{display:block;font-size:13px;font-weight:500;color:rgba(255,255,255,0.7);margin-bottom:7px;letter-spacing:0.3px}
+.form-input {
+  width:100%;padding:11px 16px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:10px;color:white;font-size:15px;
+  font-family:'Source Sans 3',sans-serif;
+  transition:var(--transition);outline:none;
+}
+.form-input::placeholder{color:rgba(255,255,255,0.3)}
+.form-input:focus{border-color:var(--gold);background:rgba(255,255,255,0.12);box-shadow:0 0 0 3px rgba(201,162,39,0.15)}
+select.form-input option{background:var(--navy);color:white}
+
+.role-picker{display:flex;gap:10px;margin-bottom:20px}
+.role-btn {
+  flex:1;padding:10px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.18);
+  background:transparent;color:rgba(255,255,255,0.6);cursor:pointer;font-size:13px;font-weight:500;
+  transition:var(--transition);font-family:'Source Sans 3',sans-serif;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.role-btn.active,.role-btn:hover{background:rgba(201,162,39,0.15);border-color:var(--gold);color:var(--gold-light)}
+
+.btn-primary {
+  width:100%;padding:13px;
+  background: linear-gradient(135deg, var(--blue-accent), var(--blue));
+  border:none;border-radius:10px;color:white;font-size:15px;font-weight:600;
+  cursor:pointer;transition:var(--transition);font-family:'Source Sans 3',sans-serif;
+  letter-spacing:0.3px;position:relative;overflow:hidden;
+}
+.btn-primary::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.1),transparent);opacity:0;transition:var(--transition)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(41,121,217,0.4)}
+.btn-primary:hover::after{opacity:1}
+.btn-primary:active{transform:translateY(0)}
+
+.auth-link{text-align:center;margin-top:20px;font-size:13px;color:rgba(255,255,255,0.5)}
+.auth-link a{color:var(--gold-light);text-decoration:none;font-weight:500}
+.auth-link a:hover{text-decoration:underline}
+
+.otp-inputs{display:flex;gap:10px;justify-content:center;margin:20px 0}
+.otp-input {
+  width:52px;height:60px;text-align:center;font-size:24px;font-weight:700;
+  background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.2);
+  border-radius:12px;color:white;outline:none;transition:var(--transition);
+  font-family:'Source Sans 3',sans-serif;
+}
+.otp-input:focus{border-color:var(--gold);background:rgba(255,255,255,0.14);box-shadow:0 0 0 3px rgba(201,162,39,0.2)}
+.otp-status{text-align:center;font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:8px}
+.otp-demo-note{background:rgba(201,162,39,0.15);border:1px solid rgba(201,162,39,0.3);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--gold-light);text-align:center;margin-bottom:20px}
+
+/* ===========================
+   MAIN APP LAYOUT
+   =========================== */
+#screen-app {
+  flex-direction:column;background:var(--bg);
+}
+
+/* TOPBAR */
+.topbar {
+  height:var(--header-h);min-height:var(--header-h);
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 24px;gap:16px;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 12px rgba(10,22,40,0.06);
+}
+.topbar-logo{display:flex;align-items:center;gap:10px;margin-right:8px}
+.topbar-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.topbar-logo-name{font-family:'Playfair Display',serif;font-size:17px;color:var(--text);font-weight:700}
+.topbar-logo-sub{font-size:10px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase}
+.sidebar-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--text);font-size:20px}
+@media(max-width:768px){.sidebar-toggle{display:flex;align-items:center}}
+
+.topbar-spacer{flex:1}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+.icon-btn{width:38px;height:38px;border-radius:9px;border:1.5px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--text-muted);transition:var(--transition);position:relative}
+.icon-btn:hover{background:var(--gray-100);color:var(--text)}
+.notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--gold);border-radius:50%;border:2px solid var(--surface)}
+
+.user-chip{display:flex;align-items:center;gap:10px;padding:4px 12px 4px 4px;border-radius:50px;border:1.5px solid var(--border);background:transparent;cursor:pointer;transition:var(--transition)}
+.user-chip:hover{background:var(--gray-100)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue-accent));display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:700}
+.user-name{font-size:13px;font-weight:600;color:var(--text)}
+.user-role-badge{font-size:10px;padding:2px 7px;border-radius:50px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase}
+.badge-admin{background:rgba(201,162,39,0.15);color:var(--gold)}
+.badge-employee{background:rgba(30,95,173,0.12);color:var(--blue-accent)}
+
+/* BODY */
+.app-body{display:flex;flex:1;overflow:hidden;height:calc(100vh - var(--header-h))}
+
+/* SIDEBAR */
+.sidebar {
+  width:var(--sidebar-w);min-width:var(--sidebar-w);
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow-y:auto;overflow-x:hidden;
+  transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  z-index:90;
+}
+@media(max-width:768px){
+  .sidebar{position:fixed;top:var(--header-h);left:0;height:calc(100vh - var(--header-h));transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 30px rgba(0,0,0,0.15)}
+}
+.sidebar-section{padding:16px 12px 8px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted)}
+.nav-item {
+  display:flex;align-items:center;gap:12px;padding:10px 16px;
+  border-radius:10px;margin:2px 8px;cursor:pointer;
+  font-size:14px;font-weight:500;color:var(--text-muted);
+  transition:var(--transition);text-decoration:none;border:none;background:none;width:calc(100% - 16px);text-align:left;
+}
+.nav-item:hover{background:var(--gray-100);color:var(--text)}
+.nav-item.active{background:linear-gradient(135deg,rgba(30,95,173,0.12),rgba(41,121,217,0.08));color:var(--blue-accent);font-weight:600}
+.nav-item.active .nav-icon{color:var(--blue-accent)}
+.nav-icon{font-size:18px;width:22px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--blue-accent);color:white;font-size:10px;padding:2px 7px;border-radius:50px;font-weight:700}
+.sidebar-footer{margin-top:auto;padding:16px 8px;border-top:1px solid var(--border)}
+
+/* MAIN CONTENT */
+.main-content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* PAGE VIEWS */
+.page-view{display:none;flex:1;flex-direction:column;overflow:hidden}
+.page-view.active{display:flex}
+
+/* ===========================
+   CHAT PAGE
+   =========================== */
+.chat-container{display:flex;flex-direction:column;height:100%;overflow:hidden;background:var(--bg)}
+.chat-header{padding:20px 28px 16px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;gap:16px;flex-shrink:0}
+.chat-header-info{flex:1}
+.chat-header-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--text)}
+.chat-header-sub{font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:6px}
+.status-dot{width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.2);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(16,185,129,0.2)}50%{box-shadow:0 0 0 6px rgba(16,185,129,0.1)}}
+.chat-actions{display:flex;gap:8px}
+.btn-ghost{padding:8px 14px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;font-size:13px;font-weight:500;transition:var(--transition);font-family:'Source Sans 3',sans-serif;display:flex;align-items:center;gap:6px}
+.btn-ghost:hover{background:var(--gray-100);color:var(--text);border-color:var(--gray-300)}
+
+/* SUGGESTED PROMPTS */
+.quick-prompts{padding:16px 24px;display:flex;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0}
+.quick-prompt-label{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:6px;margin-bottom:8px;width:100%}
+.prompt-chip {
+  padding:8px 14px;border-radius:50px;border:1.5px solid var(--border);
+  background:var(--gray-50);color:var(--text);cursor:pointer;font-size:13px;font-weight:500;
+  transition:var(--transition);white-space:nowrap;font-family:'Source Sans 3',sans-serif;
+  display:flex;align-items:center;gap:6px;
+}
+.prompt-chip:hover{background:var(--navy);color:white;border-color:var(--navy);transform:translateY(-1px);box-shadow:0 4px 12px rgba(10,22,40,0.15)}
+.prompt-chip-icon{font-size:15px}
+
+/* CHAT MESSAGES */
+.chat-messages{flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:20px;scroll-behavior:smooth}
+.chat-messages::-webkit-scrollbar{width:5px}
+.chat-messages::-webkit-scrollbar-track{background:transparent}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:10px}
+
+/* WELCOME */
+.chat-welcome{text-align:center;padding:40px 20px;max-width:600px;margin:0 auto}
+.welcome-icon{font-size:56px;margin-bottom:16px;animation:bounceIn 0.8s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes bounceIn{from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}
+.welcome-title{font-family:'Playfair Display',serif;font-size:28px;color:var(--text);margin-bottom:10px}
+.welcome-sub{font-size:15px;color:var(--text-muted);line-height:1.6;margin-bottom:28px}
+.welcome-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:left}
+@media(max-width:600px){.welcome-cards{grid-template-columns:1fr}}
+.welcome-card{padding:16px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;transition:var(--transition)}
+.welcome-card:hover{border-color:var(--blue-accent);transform:translateY(-2px);box-shadow:0 6px 20px rgba(41,121,217,0.12)}
+.welcome-card-icon{font-size:24px;margin-bottom:8px}
+.welcome-card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.welcome-card-desc{font-size:12px;color:var(--text-muted);line-height:1.5}
+
+/* MESSAGE BUBBLES */
+.message{display:flex;gap:14px;animation:msgIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both}
+@keyframes msgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.message.user{flex-direction:row-reverse}
+.msg-avatar{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;align-self:flex-end}
+.msg-avatar.bot{background:linear-gradient(135deg,var(--navy),var(--blue-accent));box-shadow:0 4px 12px rgba(30,95,173,0.3)}
+.msg-avatar.user{background:linear-gradient(135deg,var(--blue-accent),#5ba3f5);box-shadow:0 4px 12px rgba(41,121,217,0.3)}
+.msg-bubble {
+  max-width:72%;padding:14px 18px;border-radius:18px;font-size:14.5px;line-height:1.65;
+  position:relative;
+}
+.message.bot .msg-bubble{background:var(--surface);border:1.5px solid var(--border);border-bottom-left-radius:6px;box-shadow:var(--shadow)}
+.message.user .msg-bubble{background:linear-gradient(135deg,var(--navy),var(--blue));color:white;border-bottom-right-radius:6px}
+.msg-meta{font-size:11px;color:var(--text-muted);margin-top:6px;display:flex;align-items:center;gap:6px}
+.message.user .msg-meta{justify-content:flex-end;color:rgba(255,255,255,0.6)}
+.msg-tag{display:inline-block;padding:2px 8px;border-radius:50px;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
+.tag-hr{background:rgba(201,162,39,0.15);color:var(--gold)}
+.tag-it{background:rgba(5,150,105,0.12);color:#059669}
+.tag-general{background:rgba(41,121,217,0.12);color:var(--blue-accent)}
+.tag-policy{background:rgba(220,38,38,0.1);color:#dc2626}
+
+/* TYPING INDICATOR */
+.typing-indicator{display:flex;align-items:center;gap:5px;padding:12px 16px}
+.typing-dot{width:8px;height:8px;border-radius:50%;background:var(--blue-accent);animation:typing 1.4s infinite}
+.typing-dot:nth-child(2){animation-delay:0.2s}
+.typing-dot:nth-child(3){animation-delay:0.4s}
+@keyframes typing{0%,60%,100%{opacity:0.3;transform:scale(0.8)}30%{opacity:1;transform:scale(1)}}
+
+/* CHAT INPUT */
+.chat-input-area{padding:16px 24px 20px;border-top:1px solid var(--border);background:var(--surface);flex-shrink:0}
+.chat-input-wrapper{display:flex;gap:10px;align-items:flex-end;background:var(--bg);border:1.5px solid var(--border);border-radius:16px;padding:8px 8px 8px 16px;transition:var(--transition)}
+.chat-input-wrapper:focus-within{border-color:var(--blue-accent);box-shadow:0 0 0 4px rgba(41,121,217,0.08)}
+.chat-input{flex:1;border:none;background:transparent;color:var(--text);font-size:14.5px;font-family:'Source Sans 3',sans-serif;resize:none;outline:none;min-height:36px;max-height:120px;line-height:1.5}
+.chat-input::placeholder{color:var(--text-muted)}
+.send-btn{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--blue-accent),var(--blue));border:none;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:var(--transition);flex-shrink:0}
+.send-btn:hover{transform:scale(1.06);box-shadow:0 4px 16px rgba(41,121,217,0.4)}
+.send-btn:active{transform:scale(0.96)}
+.chat-footer-hint{font-size:11px;color:var(--text-muted);text-align:center;margin-top:10px}
+
+/* ===========================
+   DOCUMENT PAGE
+   =========================== */
+.page-content{flex:1;overflow-y:auto;padding:28px}
+.page-title{font-family:'Playfair Display',serif;font-size:24px;color:var(--text);margin-bottom:4px}
+.page-subtitle{font-size:14px;color:var(--text-muted);margin-bottom:28px}
+
+.upload-zone{border:2.5px dashed var(--border);border-radius:16px;padding:48px 24px;text-align:center;background:var(--surface);cursor:pointer;transition:var(--transition);position:relative}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--blue-accent);background:rgba(41,121,217,0.04)}
+.upload-zone-icon{font-size:48px;margin-bottom:12px}
+.upload-zone-title{font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px}
+.upload-zone-sub{font-size:13px;color:var(--text-muted);margin-bottom:16px}
+.btn-outline{padding:10px 20px;border-radius:10px;border:2px solid var(--blue-accent);color:var(--blue-accent);background:transparent;cursor:pointer;font-size:14px;font-weight:600;transition:var(--transition);font-family:'Source Sans 3',sans-serif}
+.btn-outline:hover{background:var(--blue-accent);color:white}
+
+.docs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:24px}
+.doc-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:20px;transition:var(--transition)}
+.doc-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.doc-card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.doc-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.doc-icon.pdf{background:rgba(220,38,38,0.1)}
+.doc-icon.docx{background:rgba(30,95,173,0.1)}
+.doc-info{flex:1;min-width:0}
+.doc-name{font-weight:700;font-size:14px;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-meta{font-size:12px;color:var(--text-muted)}
+.doc-summary{font-size:13px;color:var(--text-muted);line-height:1.55;margin-bottom:12px;border-left:3px solid var(--blue-accent);padding-left:10px}
+.doc-keywords{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.keyword-tag{padding:3px 9px;background:var(--gray-100);border-radius:50px;font-size:11px;color:var(--text-muted);font-weight:500}
+.doc-actions{display:flex;gap:8px}
+.btn-sm{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:var(--transition);font-family:'Source Sans 3',sans-serif;border:1.5px solid var(--border);background:transparent;color:var(--text-muted)}
+.btn-sm:hover{background:var(--gray-100);color:var(--text)}
+.btn-sm.primary{background:var(--navy);color:white;border-color:var(--navy)}
+.btn-sm.primary:hover{background:var(--blue)}
+
+/* ===========================
+   ADMIN PANEL
+   =========================== */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:20px;transition:var(--transition)}
+.stat-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.stat-label{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.stat-value{font-family:'Playfair Display',serif;font-size:32px;color:var(--text);margin-bottom:4px}
+.stat-change{font-size:12px;color:var(--green);display:flex;align-items:center;gap:4px}
+.stat-change.down{color:var(--red)}
+
+.analytics-row{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-bottom:24px}
+@media(max-width:900px){.analytics-row{grid-template-columns:1fr}}
+.chart-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:20px}
+.card-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
+.card-sub{font-size:12px;color:var(--text-muted);margin-bottom:20px}
+
+/* Bar Chart */
+.bar-chart{display:flex;align-items:flex-end;gap:10px;height:140px}
+.bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.bar{width:100%;border-radius:6px 6px 0 0;transition:height 0.8s cubic-bezier(0.34,1.56,0.64,1)}
+.bar-label{font-size:11px;color:var(--text-muted);text-align:center}
+.bar-val{font-size:11px;font-weight:700;color:var(--text)}
+
+/* Donut Chart */
+.donut-wrap{display:flex;align-items:center;gap:20px}
+.donut-svg{flex-shrink:0}
+.donut-legend{flex:1}
+.legend-item{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;color:var(--text)}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* FAQ Table */
+.data-table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:12px;overflow:hidden;border:1.5px solid var(--border)}
+.data-table th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);background:var(--gray-50);border-bottom:1.5px solid var(--border)}
+.data-table td{padding:12px 16px;font-size:13.5px;color:var(--text);border-bottom:1px solid var(--border)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--gray-50)}
+
+/* Users/Logs Table */
+.table-wrap{overflow-x:auto;border-radius:14px;border:1.5px solid var(--border)}
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:50px;font-size:11px;font-weight:600}
+.status-active{background:rgba(5,150,105,0.12);color:#059669}
+.status-offline{background:rgba(100,116,139,0.12);color:var(--gray-500)}
+
+/* ===========================
+   NOTIFICATIONS PANEL
+   =========================== */
+.notif-panel{position:fixed;top:calc(var(--header-h) + 8px);right:16px;width:320px;background:var(--surface);border:1.5px solid var(--border);border-radius:16px;box-shadow:var(--shadow-lg);z-index:200;display:none;animation:slideDown 0.2s ease both}
+.notif-panel.open{display:block}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.notif-header{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.notif-header-title{font-weight:700;font-size:14px;color:var(--text)}
+.notif-clear{font-size:12px;color:var(--blue-accent);cursor:pointer;border:none;background:none;font-family:'Source Sans 3',sans-serif}
+.notif-item{padding:12px 16px;display:flex;gap:12px;border-bottom:1px solid var(--border);cursor:pointer;transition:var(--transition)}
+.notif-item:hover{background:var(--gray-50)}
+.notif-item:last-child{border-bottom:none}
+.notif-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.notif-body{flex:1;min-width:0}
+.notif-title{font-size:13px;font-weight:600;color:var(--text)}
+.notif-desc{font-size:12px;color:var(--text-muted);margin-top:2px}
+.notif-time{font-size:11px;color:var(--text-muted);margin-top:4px}
+
+/* ===========================
+   TOAST
+   =========================== */
+.toast-container{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:10px;z-index:999}
+.toast{padding:12px 18px;border-radius:12px;background:var(--navy);color:white;font-size:13.5px;font-weight:500;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;animation:toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1);max-width:320px}
+.toast.success{background:#065f46}
+.toast.error{background:#7f1d1d}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+
+/* ===========================
+   MODAL
+   =========================== */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,22,40,0.6);backdrop-filter:blur(4px);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex;animation:fadeIn 0.2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--surface);border-radius:20px;padding:32px;max-width:520px;width:100%;box-shadow:var(--shadow-lg);animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes modalIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:none}}
+.modal-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--text);margin-bottom:8px}
+.modal-sub{font-size:14px;color:var(--text-muted);margin-bottom:20px;line-height:1.5}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+
+/* ===========================
+   PROGRESS BAR
+   =========================== */
+.progress-bar-wrap{height:6px;background:var(--gray-200);border-radius:10px;overflow:hidden;margin:8px 0}
+.progress-bar-fill{height:100%;border-radius:10px;transition:width 0.6s ease}
+
+/* ===========================
+   MISC
+   =========================== */
+.divider{height:1px;background:var(--border);margin:16px 0}
+.skeleton{border-radius:8px;background:linear-gradient(90deg,var(--gray-100) 25%,var(--gray-200) 50%,var(--gray-100) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.doc-progress-overlay{position:absolute;inset:0;background:rgba(var(--surface),0.9);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-size:14px;font-weight:600;color:var(--text)}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--blue-accent);border-radius:50%;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:80}
+@media(max-width:768px){.mobile-overlay.open{display:block}}
+
+/* ===========================
+   LOGIN SCREEN SPECIFIC
+   =========================== */
+.strength-bar{height:3px;border-radius:10px;background:var(--gray-200);margin-top:6px;overflow:hidden;transition:var(--transition)}
+.strength-fill{height:100%;border-radius:10px;transition:all 0.4s ease;width:0}
+
+</style>
+</head>
+<body>
+
+<!-- ====================================================
+     AUTH: LOGIN SCREEN
+     ==================================================== -->
+<div class="screen active" id="screen-login">
+  <div class="auth-bg-pattern"></div>
+  <div class="auth-orb orb1"></div>
+  <div class="auth-orb orb2"></div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🏛️</div>
+      <div class="auth-logo-text">
+        Enterprise Portal
+        <small>Government of India</small>
+      </div>
+    </div>
+    <h2 class="auth-title">Welcome Back</h2>
+    <p class="auth-subtitle">Sign in to your enterprise assistant account</p>
+
+    <div style="margin-bottom:18px">
+      <div class="form-label">Login As</div>
+      <div class="role-picker">
+        <button class="role-btn active" onclick="selectRole(this,'employee')" id="role-employee">👤 Employee</button>
+        <button class="role-btn" onclick="selectRole(this,'admin')" id="role-admin">🛡️ Admin</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input class="form-input" type="email" placeholder="your.name@gov.in" id="login-email" value="dhineshkumar060107@gmail.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" placeholder="••••••••" id="login-password" value="password123">
+    </div>
+    <button class="btn-primary" onclick="handleLogin()">
+      Sign In to Portal
+    </button>
+    <div class="auth-link">Don't have an account? <a href="#" onclick="showScreen('screen-register')">Register here</a></div>
+  </div>
+</div>
+
+<!-- ====================================================
+     AUTH: REGISTER SCREEN
+     ==================================================== -->
+<div class="screen" id="screen-register">
+  <div class="auth-bg-pattern"></div>
+  <div class="auth-orb orb1"></div>
+  <div class="auth-orb orb2"></div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🏛️</div>
+      <div class="auth-logo-text">Enterprise Portal<small>Government of India</small></div>
+    </div>
+    <h2 class="auth-title">Create Account</h2>
+    <p class="auth-subtitle">Register as a new enterprise user</p>
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input class="form-input" type="text" placeholder="Rajesh Kumar">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Employee ID</label>
+      <input class="form-input" type="text" placeholder="GOV-2024-XXXX">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input class="form-input" type="email" placeholder="your.name@gov.in">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Create Password</label>
+      <input class="form-input" type="password" placeholder="Min. 8 characters" oninput="checkStrength(this)">
+      <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Department</label>
+      <select class="form-input">
+        <option>Human Resources</option>
+        <option>Information Technology</option>
+        <option>Finance & Accounts</option>
+        <option>Operations</option>
+        <option>Legal</option>
+      </select>
+    </div>
+    <button class="btn-primary" onclick="handleRegister()">Create Account & Verify</button>
+    <div class="auth-link">Already have an account? <a href="#" onclick="showScreen('screen-login')">Sign in</a></div>
+  </div>
+</div>
+
+<!-- ====================================================
+     AUTH: OTP SCREEN
+     ==================================================== -->
+<div class="screen" id="screen-otp">
+  <div class="auth-bg-pattern"></div>
+  <div class="auth-orb orb1"></div>
+  <div class="auth-orb orb2"></div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🏛️</div>
+      <div class="auth-logo-text">Enterprise Portal<small>2-Factor Authentication</small></div>
+    </div>
+    <h2 class="auth-title">Email Verification</h2>
+    <p class="auth-subtitle">We've sent a 6-digit OTP to <strong style="color:var(--gold-light)" id="otp-email-display">dhineshkumar060107@gmail.com</strong></p>
+    <div class="otp-demo-note">🔐 Demo OTP: <strong>1 2 3 4 5 6</strong></div>
+    <div class="otp-inputs">
+      <input class="otp-input" maxlength="1" type="text" oninput="otpNext(this,0)" id="otp-0">
+      <input class="otp-input" maxlength="1" type="text" oninput="otpNext(this,1)" id="otp-1">
+      <input class="otp-input" maxlength="1" type="text" oninput="otpNext(this,2)" id="otp-2">
+      <input class="otp-input" maxlength="1" type="text" oninput="otpNext(this,3)" id="otp-3">
+      <input class="otp-input" maxlength="1" type="text" oninput="otpNext(this,4)" id="otp-4">
+      <input class="otp-input" maxlength="1" type="text" oninput="otpNext(this,5)" id="otp-5">
+    </div>
+    <div class="otp-status" id="otp-timer">Resend OTP in <span id="otp-countdown">59</span>s</div>
+    <button class="btn-primary" onclick="verifyOTP()">Verify & Enter Portal</button>
+    <div class="auth-link"><a href="#" onclick="showScreen('screen-login')">← Back to Login</a></div>
+  </div>
+</div>
+
+<!-- ====================================================
+     MAIN APP
+     ==================================================== -->
+<div class="screen" id="screen-app">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="topbar-logo">
+      <div class="topbar-logo-icon">🏛️</div>
+      <div>
+        <div class="topbar-logo-name">Enterprise Assistant</div>
+        <div class="topbar-logo-sub" style="font-size:9px">Gov. of India Portal</div>
+      </div>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-actions">
+      <button class="icon-btn" onclick="toggleDark()" title="Toggle dark mode" id="dark-toggle">🌙</button>
+      <button class="icon-btn" onclick="toggleNotif()" id="notif-btn">
+        🔔
+        <div class="notif-dot"></div>
+      </button>
+      <div class="user-chip" onclick="handleLogout()">
+        <div class="user-avatar" id="user-avatar">DL</div>
+        <div>
+          <div class="user-name" id="user-name-display">Dhineshkumar.L</div>
+          <span class="user-role-badge badge-employee" id="user-role-badge">Employee</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NOTIFICATIONS PANEL -->
+  <div class="notif-panel" id="notif-panel">
+    <div class="notif-header">
+      <span class="notif-header-title">Notifications</span>
+      <button class="notif-clear" onclick="clearNotifs()">Mark all read</button>
+    </div>
+    <div class="notif-item">
+      <div class="notif-icon" style="background:rgba(201,162,39,0.12)">📋</div>
+      <div class="notif-body">
+        <div class="notif-title">New HR Policy Uploaded</div>
+        <div class="notif-desc">Leave Policy 2024 has been updated</div>
+        <div class="notif-time">2 minutes ago</div>
+      </div>
+    </div>
+    <div class="notif-item">
+      <div class="notif-icon" style="background:rgba(5,150,105,0.12)">✅</div>
+      <div class="notif-body">
+        <div class="notif-title">IT Support Ticket Resolved</div>
+        <div class="notif-desc">Your VPN issue has been resolved</div>
+        <div class="notif-time">1 hour ago</div>
+      </div>
+    </div>
+    <div class="notif-item">
+      <div class="notif-icon" style="background:rgba(41,121,217,0.12)">📅</div>
+      <div class="notif-body">
+        <div class="notif-title">Town Hall Meeting</div>
+        <div class="notif-desc">Tomorrow at 3:00 PM — Conference Hall B</div>
+        <div class="notif-time">3 hours ago</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP BODY -->
+  <div class="app-body">
+
+    <!-- SIDEBAR -->
+    <div class="mobile-overlay" id="mobile-overlay" onclick="closeSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-section">Main</div>
+      <button class="nav-item active" onclick="showPage('page-chat',this)">
+        <span class="nav-icon">💬</span> AI Assistant
+        <span class="nav-badge">Live</span>
+      </button>
+      <button class="nav-item" onclick="showPage('page-docs',this)">
+        <span class="nav-icon">📂</span> Documents
+      </button>
+
+      <div class="sidebar-section">HR & Policies</div>
+      <button class="nav-item" onclick="showPage('page-chat',this);setTimeout(()=>sendQuickPrompt('What is the leave policy?'),300)">
+        <span class="nav-icon">🏖️</span> Leave Policy
+      </button>
+      <button class="nav-item" onclick="showPage('page-chat',this);setTimeout(()=>sendQuickPrompt('Tell me about the salary structure'),300)">
+        <span class="nav-icon">💰</span> Salary Structure
+      </button>
+      <button class="nav-item" onclick="showPage('page-chat',this);setTimeout(()=>sendQuickPrompt('What are the company events this month?'),300)">
+        <span class="nav-icon">📅</span> Events
+      </button>
+
+      <div class="sidebar-section">Support</div>
+      <button class="nav-item" onclick="showPage('page-chat',this);setTimeout(()=>sendQuickPrompt('How do I reset my password?'),300)">
+        <span class="nav-icon">🔐</span> IT Support
+      </button>
+      <button class="nav-item" onclick="showPage('page-chat',this);setTimeout(()=>sendQuickPrompt('What are the internal procedures for expense reimbursement?'),300)">
+        <span class="nav-icon">📋</span> Procedures
+      </button>
+
+      <div class="sidebar-section" id="admin-section" style="display:none">Admin</div>
+      <button class="nav-item admin-only" style="display:none" onclick="showPage('page-admin',this)">
+        <span class="nav-icon">🛡️</span> Admin Panel
+      </button>
+
+      <div class="sidebar-footer">
+        <button class="nav-item" onclick="handleLogout()">
+          <span class="nav-icon">🚪</span> Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <!-- =================== CHAT PAGE =================== -->
+      <div class="page-view active" id="page-chat">
+        <div class="chat-container">
+          <div class="chat-header">
+            <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--navy),var(--blue-accent));display:flex;align-items:center;justify-content:center;font-size:20px">🤖</div>
+            <div class="chat-header-info">
+              <div class="chat-header-title">AI Enterprise Assistant</div>
+              <div class="chat-header-sub">
+                <div class="status-dot"></div>
+                Online · NLP Engine Active · 5 concurrent sessions
+              </div>
+            </div>
+            <div class="chat-actions">
+              <button class="btn-ghost" onclick="clearChat()">🗑️ Clear</button>
+              <button class="btn-ghost" onclick="exportChat()">⬇️ Export</button>
+            </div>
+          </div>
+
+          <!-- QUICK PROMPTS -->
+          <div class="quick-prompts">
+            <div class="quick-prompt-label">✨ Suggested Topics</div>
+            <button class="prompt-chip" onclick="sendQuickPrompt('What is the annual leave entitlement for employees?')"><span class="prompt-chip-icon">🏖️</span> Annual Leave</button>
+            <button class="prompt-chip" onclick="sendQuickPrompt('How do I raise an IT support ticket?')"><span class="prompt-chip-icon">🖥️</span> IT Support</button>
+            <button class="prompt-chip" onclick="sendQuickPrompt('What are the upcoming company events?')"><span class="prompt-chip-icon">📅</span> Events</button>
+            <button class="prompt-chip" onclick="sendQuickPrompt('Explain the salary structure and pay grades')"><span class="prompt-chip-icon">💰</span> Salary Info</button>
+            <button class="prompt-chip" onclick="sendQuickPrompt('What is the work from home policy?')"><span class="prompt-chip-icon">🏠</span> WFH Policy</button>
+            <button class="prompt-chip" onclick="sendQuickPrompt('How do I apply for maternity or paternity leave?')"><span class="prompt-chip-icon">👶</span> Parental Leave</button>
+            <button class="prompt-chip" onclick="sendQuickPrompt('What is the expense reimbursement process?')"><span class="prompt-chip-icon">💳</span> Reimbursements</button>
+            <button class="prompt-chip" onclick="sendQuickPrompt('How do I request access to internal systems?')"><span class="prompt-chip-icon">🔑</span> System Access</button>
+          </div>
+
+          <!-- MESSAGES -->
+          <div class="chat-messages" id="chat-messages">
+            <!-- Welcome shown by JS -->
+          </div>
+
+          <!-- INPUT -->
+          <div class="chat-input-area">
+            <div class="chat-input-wrapper">
+              <textarea class="chat-input" id="chat-input" placeholder="Ask me anything about HR policies, IT support, events, or procedures..." rows="1" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+              <button class="send-btn" onclick="sendMessage()">➤</button>
+            </div>
+            <div class="chat-footer-hint">🔒 Secured with end-to-end encryption · Powered by Transformer-based NLP</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================== DOCUMENTS PAGE =================== -->
+      <div class="page-view" id="page-docs">
+        <div class="page-content">
+          <div class="page-title">Document Processing</div>
+          <div class="page-subtitle">Upload, extract, and summarize HR & IT policy documents</div>
+
+          <div class="upload-zone" onclick="simulateUpload()" id="upload-zone">
+            <div class="upload-zone-icon">📤</div>
+            <div class="upload-zone-title">Drop files here or click to upload</div>
+            <div class="upload-zone-sub">Supports PDF, DOCX — Max 10 pages · Max 20MB</div>
+            <button class="btn-outline" onclick="event.stopPropagation();simulateUpload()">Choose File</button>
+            <div id="upload-progress" style="display:none;margin-top:16px;width:100%;max-width:300px;margin-left:auto;margin-right:auto">
+              <div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:8px;text-align:center" id="upload-label">Processing document...</div>
+              <div class="progress-bar-wrap"><div class="progress-bar-fill" id="upload-bar" style="width:0%;background:linear-gradient(135deg,var(--blue-accent),var(--gold))"></div></div>
+            </div>
+          </div>
+
+          <div class="docs-grid" id="docs-grid">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- =================== ADMIN PAGE =================== -->
+      <div class="page-view" id="page-admin">
+        <div class="page-content">
+          <div class="page-title">Admin Panel</div>
+          <div class="page-subtitle">Monitor system activity, analytics, and manage content</div>
+
+          <!-- STATS -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">👥 Total Users</div>
+              <div class="stat-value">1,247</div>
+              <div class="stat-change">↑ +12% this month</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">💬 Chat Sessions</div>
+              <div class="stat-value">8,439</div>
+              <div class="stat-change">↑ +8.4% this week</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">⚡ Avg Response</div>
+              <div class="stat-value">1.8s</div>
+              <div class="stat-change">↓ −0.3s improvement</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">📂 Documents</div>
+              <div class="stat-value">342</div>
+              <div class="stat-change">↑ +24 this week</div>
+            </div>
+          </div>
+
+          <!-- CHARTS -->
+          <div class="analytics-row">
+            <div class="chart-card">
+              <div class="card-title">Weekly Query Volume</div>
+              <div class="card-sub">Number of assistant queries per day</div>
+              <div class="bar-chart" id="bar-chart"></div>
+            </div>
+            <div class="chart-card">
+              <div class="card-title">Query Categories</div>
+              <div class="card-sub">Distribution by intent type</div>
+              <div class="donut-wrap">
+                <svg class="donut-svg" width="120" height="120" viewBox="0 0 120 120" id="donut-svg"></svg>
+                <div class="donut-legend" id="donut-legend"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ TABLE -->
+          <div class="chart-card" style="margin-bottom:24px">
+            <div class="card-title">Top Frequently Asked Questions</div>
+            <div class="card-sub">Most queried topics in the past 30 days</div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>#</th><th>Question</th><th>Category</th><th>Count</th><th>Trend</th></tr></thead>
+                <tbody id="faq-table"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- USER LOGS -->
+          <div class="chart-card">
+            <div class="card-title">Recent User Activity</div>
+            <div class="card-sub">Last 10 login sessions</div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>User</th><th>Role</th><th>Last Active</th><th>Sessions</th><th>Status</th></tr></thead>
+                <tbody id="users-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div><!-- end app-body -->
+</div><!-- end screen-app -->
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-sub" id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">Close</button>
+      <button class="btn-primary" style="width:auto;padding:10px 24px" onclick="closeModal()">Got it</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================================================
+//  STATE
+// ===================================================
+let appState = {
+  role: 'employee',
+  user: { name: 'Dhineshkumar.L', email: 'dhineshkumar060107@gmail.com', initials: 'DL' },
+  dark: false,
+  messages: [],
+  typing: false
+};
+
+let otpTimer;
+let currentOTP = '';
+
+function generateOTP() {
+  currentOTP = Array.from({length: 6}, () => Math.floor(Math.random() * 10)).join('');
+  return currentOTP;
+}
+
+// ===================================================
+//  AUTH FLOWS
+// ===================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function selectRole(el, role) {
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  appState.role = role;
+}
+
+function handleLogin() {
+  const email = document.getElementById('login-email').value;
+  if (!email) { showToast('Please enter your email', 'error'); return; }
+  document.getElementById('otp-email-display').textContent = email;
+  const otp = generateOTP();
+  document.querySelector('.otp-demo-note').innerHTML = `🔐 Demo OTP: <strong style="letter-spacing:6px;font-size:18px">${otp}</strong>`;
+  for (let i = 0; i < 6; i++) {
+    document.getElementById('otp-'+i).value = '';
+    document.getElementById('otp-'+i).style.borderColor = '';
+  }
+  showScreen('screen-otp');
+  startOTPTimer();
+  setTimeout(() => document.getElementById('otp-0').focus(), 300);
+}
+
+function handleRegister() {
+  const otp = generateOTP();
+  document.querySelector('.otp-demo-note').innerHTML = `🔐 Demo OTP: <strong style="letter-spacing:6px;font-size:18px">${otp}</strong>`;
+  for (let i = 0; i < 6; i++) {
+    document.getElementById('otp-'+i).value = '';
+    document.getElementById('otp-'+i).style.borderColor = '';
+  }
+  showScreen('screen-otp');
+  startOTPTimer();
+  appState.user = { name: 'New User', email: 'user@gov.in', initials: 'NU' };
+  setTimeout(() => document.getElementById('otp-0').focus(), 300);
+}
+
+function startOTPTimer() {
+  let t = 59;
+  clearInterval(otpTimer);
+  otpTimer = setInterval(() => {
+    t--;
+    document.getElementById('otp-countdown').textContent = t;
+    if (t <= 0) { clearInterval(otpTimer); document.getElementById('otp-timer').textContent = 'Resend OTP'; }
+  }, 1000);
+}
+
+function otpNext(el, idx) {
+  if (el.value && idx < 5) document.getElementById('otp-' + (idx+1)).focus();
+}
+
+function verifyOTP() {
+  const code = [0,1,2,3,4,5].map(i => document.getElementById('otp-'+i).value).join('');
+  if (code === currentOTP) {
+    clearInterval(otpTimer);
+    showToast('✅ Authentication successful!', 'success');
+    setTimeout(() => launchApp(), 700);
+  } else {
+    showToast('❌ Invalid OTP. Check the demo code shown above.', 'error');
+    for (let i = 0; i < 6; i++) {
+      document.getElementById('otp-'+i).value = '';
+      document.getElementById('otp-'+i).style.borderColor = 'rgba(220,38,38,0.6)';
+    }
+    setTimeout(() => {
+      for (let i = 0; i < 6; i++) document.getElementById('otp-'+i).style.borderColor = '';
+      document.getElementById('otp-0').focus();
+    }, 800);
+  }
+}
+
+function launchApp() {
+  // Set user display
+  const isAdmin = appState.role === 'admin';
+  document.getElementById('user-name-display').textContent = appState.user.name;
+  document.getElementById('user-avatar').textContent = appState.user.initials;
+  const badge = document.getElementById('user-role-badge');
+  if (isAdmin) {
+    badge.textContent = 'Admin';
+    badge.className = 'user-role-badge badge-admin';
+    document.getElementById('admin-section').style.display = '';
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+  } else {
+    badge.textContent = 'Employee';
+    badge.className = 'user-role-badge badge-employee';
+  }
+  showScreen('screen-app');
+  initChat();
+  populateDocs();
+  populateAdmin();
+}
+
+function handleLogout() {
+  showToast('Signed out successfully');
+  setTimeout(() => showScreen('screen-login'), 800);
+}
+
+function checkStrength(inp) {
+  const v = inp.value;
+  let s = 0;
+  if (v.length >= 8) s++;
+  if (/[A-Z]/.test(v)) s++;
+  if (/[0-9]/.test(v)) s++;
+  if (/[^a-zA-Z0-9]/.test(v)) s++;
+  const fill = document.getElementById('strength-fill');
+  const colors = ['','#ef4444','#f97316','#eab308','#22c55e'];
+  fill.style.width = (s*25)+'%';
+  fill.style.background = colors[s];
+}
+
+// ===================================================
+//  NAVIGATION
+// ===================================================
+function showPage(id, navEl) {
+  document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+  closeSidebar();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('mobile-overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('mobile-overlay').classList.remove('open');
+}
+
+// ===================================================
+//  CHAT
+// ===================================================
+const knowledgeBase = {
+  leave: {
+    tag: 'tag-hr', tagLabel: 'HR Policy',
+    response: `📋 <strong>Annual Leave Policy</strong><br><br>
+Employees are entitled to the following leave benefits:<br><br>
+• <strong>Casual Leave:</strong> 12 days per year (non-accumulative)<br>
+• <strong>Earned Leave:</strong> 30 days per year (carry forward up to 60 days)<br>
+• <strong>Medical Leave:</strong> 20 days per year with medical certificate<br>
+• <strong>Compensatory Leave:</strong> For work on holidays/weekends<br><br>
+<strong>How to Apply:</strong> Submit leave requests via the HR Portal at least 2 working days in advance. Emergency leaves can be applied retrospectively with HOD approval.<br><br>
+<em>Policy ref: HR-POL-2024-001 | Last updated: January 2024</em>`
+  },
+  salary: {
+    tag: 'tag-hr', tagLabel: 'HR Policy',
+    response: `💰 <strong>Salary Structure & Pay Grades</strong><br><br>
+<strong>Pay Grade Matrix (Annual CTC):</strong><br><br>
+• <strong>Grade A (Entry):</strong> ₹4.5L – ₹7L<br>
+• <strong>Grade B (Mid-level):</strong> ₹7L – ₹12L<br>
+• <strong>Grade C (Senior):</strong> ₹12L – ₹20L<br>
+• <strong>Grade D (Lead):</strong> ₹20L – ₹32L<br>
+• <strong>Grade E (Manager+):</strong> ₹32L and above<br><br>
+<strong>Components:</strong> Basic (40%), HRA (30%), DA (15%), Special Allowance (15%)<br>
+<strong>Increment:</strong> Annual review in April. Performance-linked bonus up to 20%.<br><br>
+<em>Policy ref: HR-SAL-2024-003</em>`
+  },
+  event: {
+    tag: 'tag-general', tagLabel: 'Events',
+    response: `📅 <strong>Upcoming Company Events</strong><br><br>
+<strong>This Month:</strong><br>
+• 🏛️ <strong>Republic Day Celebration</strong> — Jan 26 @ 9:00 AM, Main Auditorium<br>
+• 📊 <strong>Q4 Town Hall</strong> — Jan 28 @ 3:00 PM, Conference Hall B<br>
+• 🎓 <strong>Leadership Training Workshop</strong> — Jan 30–31, Training Centre<br><br>
+<strong>Next Month:</strong><br>
+• 💡 <strong>Innovation Summit 2024</strong> — Feb 5–6, Vigyan Bhawan<br>
+• 🌿 <strong>Employee Wellness Day</strong> — Feb 14, All Offices<br>
+• 🏆 <strong>Annual Awards Ceremony</strong> — Feb 22 @ 6:00 PM, Grand Ballroom<br><br>
+<em>Register on the intranet portal. Participation certificates provided.</em>`
+  },
+  it: {
+    tag: 'tag-it', tagLabel: 'IT Support',
+    response: `🖥️ <strong>IT Support Helpdesk Guide</strong><br><br>
+<strong>How to Raise a Ticket:</strong><br>
+1. Visit the IT Portal: <strong>itsupport.gov.in</strong><br>
+2. Click "New Request" → Choose category<br>
+3. Describe issue with screenshots if possible<br>
+4. Track status via ticket number (email + SMS updates)<br><br>
+<strong>Common Issues & Self-Help:</strong><br>
+• 🔐 <strong>Password Reset:</strong> Go to Identity Portal → "Forgot Password"<br>
+• 🌐 <strong>VPN Issues:</strong> Reinstall GlobalProtect from IT Portal<br>
+• 📧 <strong>Email Problems:</strong> Check mailbox quota or contact helpdesk<br>
+• 💻 <strong>System Slow:</strong> Restart required every 3 days per policy<br><br>
+<strong>Helpdesk:</strong> 📞 1800-XXX-XXXX (24×7) | helpdesk@gov.in<br>
+<em>SLA: P1 = 4hrs, P2 = 8hrs, P3 = 48hrs</em>`
+  },
+  password: {
+    tag: 'tag-it', tagLabel: 'IT Support',
+    response: `🔐 <strong>Password Reset Procedure</strong><br><br>
+<strong>Self-Service Reset (Recommended):</strong><br>
+1. Go to <strong>identity.gov.in</strong><br>
+2. Click "Forgot Password" on login page<br>
+3. Enter your registered email & employee ID<br>
+4. Receive OTP on mobile + email<br>
+5. Set new password (min 8 chars, 1 uppercase, 1 number, 1 special char)<br><br>
+<strong>Password Rules:</strong><br>
+• Minimum 8 characters<br>
+• Must not match last 6 passwords<br>
+• Expires every 90 days<br>
+• Multi-Factor Authentication is mandatory<br><br>
+<strong>Still locked out?</strong> Contact IT Helpdesk: helpdesk@gov.in or call extension <strong>1234</strong>`
+  },
+  wfh: {
+    tag: 'tag-hr', tagLabel: 'HR Policy',
+    response: `🏠 <strong>Work From Home (WFH) Policy</strong><br><br>
+<strong>Eligibility:</strong> Employees with 6+ months of service in Grade B and above<br><br>
+<strong>Permitted Days:</strong><br>
+• Regular employees: Up to <strong>2 days/week</strong><br>
+• Specially-abled staff: Up to <strong>3 days/week</strong><br>
+• Medical grounds: As per doctor recommendation (HOD approval required)<br><br>
+<strong>Process:</strong><br>
+1. Apply on HR Portal → "WFH Request" section<br>
+2. Submit minimum 1 day in advance<br>
+3. HOD approves/rejects within 4 hours<br>
+4. Ensure VPN connectivity and availability during work hours<br><br>
+<em>Policy ref: HR-WFH-2024-007 | Effective: April 2024</em>`
+  },
+  maternity: {
+    tag: 'tag-hr', tagLabel: 'HR Policy',
+    response: `👶 <strong>Parental Leave Policy</strong><br><br>
+<strong>Maternity Leave:</strong><br>
+• <strong>Duration:</strong> 182 days (26 weeks) fully paid<br>
+• <strong>For 2+ children:</strong> 84 days (12 weeks) fully paid<br>
+• Apply via HR Portal at least 30 days before expected leave date<br>
+• Miscarriage: 6 weeks paid leave<br><br>
+<strong>Paternity Leave:</strong><br>
+• <strong>Duration:</strong> 15 working days (within 6 months of childbirth)<br>
+• Applicable for 2 surviving children<br><br>
+<strong>Adoption Leave:</strong><br>
+• Adopting mothers: 180 days (for child under 3 months)<br>
+• Commissioning mothers (surrogacy): 180 days<br><br>
+<em>Policy ref: HR-MAT-2024-002 | As per Maternity Benefit Act 2017</em>`
+  },
+  reimbursement: {
+    tag: 'tag-policy', tagLabel: 'Procedures',
+    response: `💳 <strong>Expense Reimbursement Process</strong><br><br>
+<strong>Eligible Expenses:</strong><br>
+• Official travel (air, rail, cab) with tickets/bills<br>
+• Client entertainment (pre-approved, ≤₹2,000/head)<br>
+• Training & certification (with HOD approval)<br>
+• Medical (over-the-counter only, ≤₹5,000/year)<br><br>
+<strong>Submission Process:</strong><br>
+1. Collect all bills/receipts (digital scans accepted)<br>
+2. Submit on <strong>Finance Portal</strong> within <strong>30 days</strong> of expense<br>
+3. Fill "Expense Claim Form" (EF-01) with approver details<br>
+4. HOD approves → Finance verifies → Credited within 7 days<br><br>
+<strong>Limits:</strong> Flight = Economy class | Hotel = ₹4,500/night (metro) | Daily allowance = ₹750<br><br>
+<em>Policy ref: FIN-REI-2024-011 | Queries: finance@gov.in</em>`
+  },
+  access: {
+    tag: 'tag-it', tagLabel: 'IT Support',
+    response: `🔑 <strong>System Access Request Process</strong><br><br>
+<strong>New Access Request:</strong><br>
+1. Raise request on <strong>IT Portal → Access Management</strong><br>
+2. Select system/application from dropdown<br>
+3. Provide business justification<br>
+4. HOD and System Owner approval required<br>
+5. IT provisions access within <strong>2 working days</strong><br><br>
+<strong>Access Types:</strong><br>
+• <strong>Standard Access:</strong> Role-based, auto-provisioned on joining<br>
+• <strong>Privileged Access:</strong> Requires CISO approval + MFA<br>
+• <strong>Temporary Access:</strong> Max 30 days, can be extended<br>
+• <strong>Vendor Access:</strong> Requires NDA + background check<br><br>
+<strong>Access Review:</strong> Quarterly audit — unused access is automatically revoked<br><br>
+<em>Policy ref: IT-SEC-2024-015</em>`
+  }
+};
+
+function classifyIntent(msg) {
+  msg = msg.toLowerCase();
+  if (/leave|vacation|holiday|casual|earned|medical|off|absent/.test(msg) && !/maternity|paternity|parent/.test(msg)) return 'leave';
+  if (/salary|pay|grade|ctc|increment|bonus|compensation|hike/.test(msg)) return 'salary';
+  if (/event|town hall|meeting|celebration|workshop|award|summit|ceremony/.test(msg)) return 'event';
+  if (/password|reset|credential|login|locked|unable to login/.test(msg)) return 'password';
+  if (/vpn|ticket|support|slow|email|system|install|hardware|software|helpdesk|it/.test(msg)) return 'it';
+  if (/wfh|work from home|remote|hybrid/.test(msg)) return 'wfh';
+  if (/maternity|paternity|parental|baby|child|adopt|surrogacy/.test(msg)) return 'maternity';
+  if (/reimburse|expense|reimbursement|claim|bill|receipt|travel|hotel/.test(msg)) return 'reimbursement';
+  if (/access|permission|system access|portal access|application|request access/.test(msg)) return 'access';
+  return null;
+}
+
+function getDefaultResponse(msg) {
+  const responses = [
+    `I understand you're asking about <strong>"${msg.substring(0,50)}..."</strong><br><br>I can assist with various enterprise topics. For the most accurate and current information, please consider:<br><br>• 📋 Visiting the HR Portal: <strong>hr.gov.in</strong><br>• 🖥️ IT Support: <strong>itsupport.gov.in</strong><br>• 📞 Helpdesk: <strong>1800-XXX-XXXX</strong><br>• 📧 General Queries: <strong>helpdesk@gov.in</strong><br><br>You can also try one of the <strong>quick prompts above</strong> for instant answers on common topics like Leave Policy, Salary Structure, IT Support, and more.`,
+    `Thank you for your query! While I'm still learning this specific topic, here's how you can get help quickly:<br><br>• Use the <strong>suggested prompts</strong> at the top of this chat<br>• Browse the <strong>Documents</strong> section for policy PDFs<br>• Contact your HR Business Partner or IT Helpdesk<br><br>Is there anything specific about HR policies, IT support, or company events I can help you with?`
+  ];
+  return responses[Math.floor(Math.random()*responses.length)];
+}
+
+function initChat() {
+  const el = document.getElementById('chat-messages');
+  el.innerHTML = `
+    <div class="chat-welcome">
+      <div class="welcome-icon">🤖</div>
+      <div class="welcome-title">Hello, ${appState.user.name.split('.')[0]}! 👋</div>
+      <div class="welcome-sub">I'm your AI-powered Enterprise Assistant. Ask me anything about HR policies, IT support, leave management, company events, and more.</div>
+      <div class="welcome-cards">
+        <div class="welcome-card" onclick="sendQuickPrompt('What is the leave policy?')">
+          <div class="welcome-card-icon">🏖️</div>
+          <div class="welcome-card-title">Leave & Attendance</div>
+          <div class="welcome-card-desc">Leave entitlements, applications & balance queries</div>
+        </div>
+        <div class="welcome-card" onclick="sendQuickPrompt('How do I raise an IT support ticket?')">
+          <div class="welcome-card-icon">🖥️</div>
+          <div class="welcome-card-title">IT Support</div>
+          <div class="welcome-card-desc">Tickets, system access, password resets & more</div>
+        </div>
+        <div class="welcome-card" onclick="sendQuickPrompt('Explain the salary structure')">
+          <div class="welcome-card-icon">💰</div>
+          <div class="welcome-card-title">HR Policies</div>
+          <div class="welcome-card-desc">Salary, benefits, WFH & company policies</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function sendQuickPrompt(text) {
+  document.getElementById('chat-input').value = text;
+  sendMessage();
+}
+
+function addMessage(role, html, tag, tagLabel) {
+  const el = document.getElementById('chat-messages');
+  const welcome = el.querySelector('.chat-welcome');
+  if (welcome) welcome.remove();
+
+  const time = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  const isBot = role === 'bot';
+  const div = document.createElement('div');
+  div.className = 'message ' + role;
+  div.innerHTML = `
+    <div class="msg-avatar ${role}">${isBot ? '🤖' : '👤'}</div>
+    <div>
+      <div class="msg-bubble">${html}</div>
+      <div class="msg-meta">
+        ${tag ? `<span class="msg-tag ${tag}">${tagLabel}</span>` : ''}
+        ${time}
+        ${isBot ? '· AI Generated' : ''}
+      </div>
+    </div>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function showTyping() {
+  const el = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'message bot';
+  div.id = 'typing-msg';
+  div.innerHTML = `
+    <div class="msg-avatar bot">🤖</div>
+    <div>
+      <div class="msg-bubble">
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    </div>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-msg');
+  if (t) t.remove();
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || appState.typing) return;
+  input.value = '';
+  input.style.height = 'auto';
+
+  addMessage('user', text);
+  appState.typing = true;
+  showTyping();
+
+  // Simulate AI processing time (0.8–2.5s)
+  const delay = 800 + Math.random() * 1700;
+  setTimeout(() => {
+    removeTyping();
+    appState.typing = false;
+    const intent = classifyIntent(text);
+    if (intent && knowledgeBase[intent]) {
+      const kb = knowledgeBase[intent];
+      addMessage('bot', kb.response, kb.tag, kb.tagLabel);
+    } else {
+      addMessage('bot', getDefaultResponse(text), 'tag-general', 'General');
+    }
+  }, delay);
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function clearChat() {
+  initChat();
+  showToast('Conversation cleared');
+}
+
+function exportChat() {
+  showToast('Chat exported as PDF');
+}
+
+// ===================================================
+//  DOCUMENTS
+// ===================================================
+const sampleDocs = [
+  {
+    name:'HR Leave Policy 2024.pdf', type:'pdf', pages:10, date:'Jan 15, 2024', size:'2.4 MB',
+    summary:'Comprehensive leave management policy covering annual, casual, medical, maternity, paternity, and compensatory leave entitlements for all government employees. Includes application procedures, approval workflows, and leave encashment rules.',
+    keywords:['Leave Policy', 'Annual Leave', 'Medical Leave', 'Maternity', 'Application']
+  },
+  {
+    name:'IT Security Guidelines.docx', type:'docx', pages:8, date:'Dec 10, 2023', size:'1.8 MB',
+    summary:'Organization-wide IT security policy outlining acceptable use of systems, password management, data classification, incident reporting procedures, and compliance requirements under IT Act 2000.',
+    keywords:['Cybersecurity', 'Password Policy', 'Data Protection', 'Compliance', 'Access Control']
+  },
+  {
+    name:'Salary & Benefits Structure.pdf', type:'pdf', pages:12, date:'Apr 1, 2024', size:'3.1 MB',
+    summary:'Detailed salary structure document explaining pay grades from A to E, CTC components, HRA calculation, performance bonus criteria, and annual increment policy for all permanent employees.',
+    keywords:['Salary', 'Pay Grade', 'CTC', 'HRA', 'Bonus', 'Benefits']
+  },
+  {
+    name:'Work From Home Policy.pdf', type:'pdf', pages:6, date:'Mar 15, 2024', size:'0.9 MB',
+    summary:'Remote work guidelines including eligibility criteria, permitted WFH days per week, application process, equipment support, and performance monitoring requirements for hybrid work arrangements.',
+    keywords:['WFH', 'Remote Work', 'Hybrid', 'Eligibility', 'Monitoring']
+  },
+  {
+    name:'Expense Reimbursement SOP.docx', type:'docx', pages:9, date:'Feb 20, 2024', size:'1.2 MB',
+    summary:'Standard operating procedure for employee expense claims covering travel, accommodation, client entertainment, and training expenses. Includes claim limits, documentation requirements, and processing timelines.',
+    keywords:['Reimbursement', 'Travel', 'Claims', 'Finance', 'SOP', 'Approval']
+  }
+];
+
+function populateDocs() {
+  const grid = document.getElementById('docs-grid');
+  grid.innerHTML = sampleDocs.map((d,i) => `
+    <div class="doc-card" id="doc-${i}">
+      <div class="doc-card-header">
+        <div class="doc-icon ${d.type}">${d.type === 'pdf' ? '📄' : '📝'}</div>
+        <div class="doc-info">
+          <div class="doc-name">${d.name}</div>
+          <div class="doc-meta">${d.pages} pages · ${d.size} · ${d.date}</div>
+        </div>
+      </div>
+      <div class="doc-summary">${d.summary}</div>
+      <div class="doc-keywords">${d.keywords.map(k => `<span class="keyword-tag">${k}</span>`).join('')}</div>
+      <div class="doc-actions">
+        <button class="btn-sm primary" onclick="viewDoc(${i})">View</button>
+        <button class="btn-sm" onclick="summarizeDoc(${i})">🔍 Summarize</button>
+        <button class="btn-sm" onclick="chatWithDoc(${i})">💬 Ask AI</button>
+      </div>
+    </div>`).join('');
+}
+
+function viewDoc(i) {
+  const d = sampleDocs[i];
+  openModal(`📄 ${d.name}`, `<strong>Summary:</strong><br>${d.summary}<br><br><strong>Keywords:</strong> ${d.keywords.join(', ')}<br><br><em>Full document would open in viewer in production build.</em>`);
+}
+
+function summarizeDoc(i) {
+  const d = sampleDocs[i];
+  showToast('🔍 AI summarization complete!', 'success');
+  openModal('Document Summary', `<strong>${d.name}</strong><br><br>${d.summary}<br><br><strong>Key Entities:</strong> ${d.keywords.join(' · ')}<br><br><em>Processed by NLP pipeline · ${d.pages} pages extracted</em>`);
+}
+
+function chatWithDoc(i) {
+  const d = sampleDocs[i];
+  showPage('page-chat', document.querySelector('.nav-item.active'));
+  setTimeout(() => sendQuickPrompt(`Tell me about ${d.keywords[0]}`), 300);
+}
+
+function simulateUpload() {
+  const zone = document.getElementById('upload-zone');
+  const prog = document.getElementById('upload-progress');
+  const bar = document.getElementById('upload-bar');
+  const label = document.getElementById('upload-label');
+  prog.style.display = 'block';
+  bar.style.width = '0%';
+  const stages = [
+    [20, 'Uploading document...'],
+    [45, 'Extracting text...'],
+    [65, 'Running NLP pipeline...'],
+    [80, 'Generating summary...'],
+    [95, 'Storing in database...'],
+    [100, '✅ Processing complete!']
+  ];
+  let idx = 0;
+  const interval = setInterval(() => {
+    if (idx >= stages.length) {
+      clearInterval(interval);
+      setTimeout(() => {
+        prog.style.display = 'none';
+        showToast('✅ Document processed & indexed!', 'success');
+      }, 600);
+      return;
+    }
+    bar.style.width = stages[idx][0] + '%';
+    label.textContent = stages[idx][1];
+    idx++;
+  }, 500);
+}
+
+// ===================================================
+//  ADMIN
+// ===================================================
+function populateAdmin() {
+  renderBarChart();
+  renderDonut();
+  renderFAQ();
+  renderUsers();
+}
+
+function renderBarChart() {
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const vals = [124,189,215,178,236,98,62];
+  const max = Math.max(...vals);
+  const colors = ['#1e5fad','#2979d9','#1e5fad','#2979d9','#c9a227','#6b7280','#6b7280'];
+  document.getElementById('bar-chart').innerHTML = days.map((d,i) => `
+    <div class="bar-group">
+      <div class="bar-val">${vals[i]}</div>
+      <div class="bar" style="height:${(vals[i]/max)*100}px;background:${colors[i]}"></div>
+      <div class="bar-label">${d}</div>
+    </div>`).join('');
+}
+
+function renderDonut() {
+  const data = [
+    {label:'HR Policy', val:38, color:'#1e5fad'},
+    {label:'IT Support', val:26, color:'#10b981'},
+    {label:'Salary/Benefits', val:18, color:'#c9a227'},
+    {label:'Events', val:11, color:'#8b5cf6'},
+    {label:'Other', val:7, color:'#94a3b8'}
+  ];
+  const total = data.reduce((a,b) => a+b.val,0);
+  const cx=60,cy=60,r=45,sw=14;
+  let offset=0;
+  const circumference = 2*Math.PI*r;
+  const paths = data.map(d => {
+    const pct = d.val/total;
+    const dash = pct*circumference;
+    const gap = circumference-dash;
+    const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${d.color}" stroke-width="${sw}" stroke-dasharray="${dash} ${gap}" stroke-dashoffset="${-offset*circumference}" style="transition:stroke-dasharray 1s ease"/>`;
+    offset+=pct;
+    return el;
+  });
+  document.getElementById('donut-svg').innerHTML = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--gray-200)" stroke-width="${sw}"/>` + paths.join('') + `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="700" fill="var(--text)">${total}</text><text x="${cx}" y="${cy+14}" text-anchor="middle" font-size="9" fill="var(--text-muted)">queries</text>`;
+  document.getElementById('donut-legend').innerHTML = data.map(d => `<div class="legend-item"><div class="legend-dot" style="background:${d.color}"></div>${d.label} <strong style="margin-left:auto">${d.val}%</strong></div>`).join('');
+}
+
+function renderFAQ() {
+  const faqs = [
+    ['How many days of annual leave do I get?','HR Policy',847,'↑ 12%'],
+    ['How to reset my IT password?','IT Support',634,'↑ 5%'],
+    ['What is the work from home policy?','HR Policy',521,'↑ 18%'],
+    ['What are the current pay grades?','Salary',498,'↑ 8%'],
+    ['How to raise expense reimbursement?','Finance',412,'↑ 3%'],
+    ['How to request system access?','IT Support',376,'↓ 2%'],
+    ['What is the maternity leave policy?','HR Policy',298,'↑ 22%']
+  ];
+  document.getElementById('faq-table').innerHTML = faqs.map((f,i) => `
+    <tr>
+      <td><strong>${i+1}</strong></td>
+      <td>${f[0]}</td>
+      <td><span class="msg-tag ${f[1]==='IT Support'?'tag-it':f[1]==='Finance'?'tag-policy':'tag-hr'}">${f[1]}</span></td>
+      <td><strong>${f[2]}</strong></td>
+      <td style="color:${f[3].startsWith('↑')?'#10b981':'#ef4444'}">${f[3]}</td>
+    </tr>`).join('');
+}
+
+function renderUsers() {
+  const users = [
+    ['Priya Sharma','Admin','2 mins ago',127,'active'],
+    ['Rajesh Kumar','Employee','15 mins ago',84,'active'],
+    ['Anjali Singh','Employee','1 hr ago',56,'active'],
+    ['Vikram Nair','Employee','3 hrs ago',41,'offline'],
+    ['Sunita Rao','Employee','Yesterday',29,'offline'],
+    ['Amit Patel','Employee','2 days ago',18,'offline']
+  ];
+  document.getElementById('users-table').innerHTML = users.map(u => `
+    <tr>
+      <td><strong>${u[0]}</strong></td>
+      <td><span class="msg-tag ${u[1]==='Admin'?'tag-policy':'tag-general'}">${u[1]}</span></td>
+      <td>${u[2]}</td>
+      <td>${u[3]}</td>
+      <td><span class="status-badge ${u[4]==='active'?'status-active':'status-offline'}">${u[4]==='active'?'● Online':'○ Offline'}</span></td>
+    </tr>`).join('');
+}
+
+// ===================================================
+//  UI HELPERS
+// ===================================================
+function toggleDark() {
+  appState.dark = !appState.dark;
+  document.documentElement.setAttribute('data-theme', appState.dark ? 'dark' : 'light');
+  document.getElementById('dark-toggle').textContent = appState.dark ? '☀️' : '🌙';
+}
+
+function toggleNotif() {
+  const panel = document.getElementById('notif-panel');
+  panel.classList.toggle('open');
+  document.getElementById('notif-btn').querySelector('.notif-dot').style.display = 'none';
+}
+
+function clearNotifs() {
+  document.getElementById('notif-panel').innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:14px">All notifications read ✓</div>';
+}
+
+function showToast(msg, type='') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  const icons = {success:'✅',error:'❌','':'ℹ️'};
+  toast.innerHTML = `${icons[type]||'ℹ️'} ${msg}`;
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.animation='toastIn 0.3s reverse'; setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+function openModal(title, body) {
+  document.getElementById('modal-title').innerHTML = title;
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+// Close notifications when clicking outside
+document.addEventListener('click', e => {
+  const panel = document.getElementById('notif-panel');
+  const btn = document.getElementById('notif-btn');
+  if (panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
+    panel.classList.remove('open');
+  }
+});
+
+// Close modal on overlay click
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
