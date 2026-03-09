@@ -155,6 +155,33 @@ Intelligent-Enterprise-Assistant
 
 ## OUTPUT:
 
+<img width="1913" height="1086" alt="image" src="https://github.com/user-attachments/assets/e5be4894-2727-4bfe-902f-915cae9f488c" />
+
+
+<img width="1918" height="1091" alt="image" src="https://github.com/user-attachments/assets/e1db0259-cb03-4fbc-a271-2f83f6d35b65" />
+
+
+<img width="1919" height="1093" alt="image" src="https://github.com/user-attachments/assets/508c756f-bfa8-48a0-874e-02babd8aba29" />
+
+
+<img width="1919" height="1096" alt="image" src="https://github.com/user-attachments/assets/2537c601-1aa8-4375-8248-31468072f164" />
+
+
+<img width="1919" height="1088" alt="image" src="https://github.com/user-attachments/assets/e06319d6-6d34-4cbf-b2d8-2535635f1e24" />
+
+
+## RESULT:
+
+Thus, we developed an AI-powered Intelligent Enterprise Assistant chatbot that helps employees quickly access HR, IT, and organizational information.
+The system uses Natural Language Processing (NLP) and document analysis to provide fast, secure, and efficient responses.
+
+
+
+
+
+
+
+
 
 
 
